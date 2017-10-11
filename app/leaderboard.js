@@ -5,7 +5,7 @@ PlayersList = new Mongo.Collection('players');
 if(Meteor.isClient){
   Template.leaderboard.helpers({
     'player': function(){
-      return PlayersList.find();
+      return PlayersList.find({},{sort:{score:-1, name:1}});
     },
     'otherHelperFunction': function(){
       return "Some other function";
@@ -17,7 +17,6 @@ if(Meteor.isClient){
         return "selected"
       }
     }
-
   });
 
   Template.leaderboard.events({
@@ -27,7 +26,19 @@ if(Meteor.isClient){
   Session.set('selectedPlayer', playerId);
   var selectedPlayer = Session.get('selectedPlayer');
   console.log(selectedPlayer);
-}
+},
+    'click .increment': function(){
+  var selectedPlayer = Session.get('selectedPlayer');
+  PlayersList.update({_id: selectedPlayer}, {$inc:{score:5}});
+    },
+    'click .decrement': function(){
+      var selectedPlayer = Session.get('selectedPlayer');
+      PlayersList.update({_id: selectedPlayer}, {$inc:{score:-5}});
+    },
+    'selectedPlayer': function(){
+      var selectedPlayer = Session.get('selectedPlayer');
+      return PlayersList.findOne({ _id: selectedPlayer });
+    }
   });
 }
 if(Meteor.isServer){
